@@ -1,0 +1,22 @@
+{
+  "name": "your-project-name",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.10",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.10.3",
+    "typescript": "^5.4.5"
+  }
+}
