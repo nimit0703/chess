@@ -7,7 +7,7 @@ console.log("backend started");
 const gameManager = new GameManager();
 
 wss.on('connection', function connection(ws) {
-  console.log("new connection: ");
+  console.log("new connection added: ");
   gameManager.addUser(ws)
   ws.on('disconnect', ()=>gameManager.removeUser(ws))
 });
