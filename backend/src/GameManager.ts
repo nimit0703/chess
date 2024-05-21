@@ -1,15 +1,15 @@
 import { WebSocket } from "ws";
 import { Game } from "./Game";
-import { INIT_GAME } from "./messages";
+import { INIT_GAME, MOVE } from "./messages";
 
 export class GameManager {
   private games: Game[];
-  private pandingUser: WebSocket | null;
+  private pendingUser: WebSocket | null;
   private users: WebSocket[];
   constructor() {
     this.games = [];
     this.users = [];
-    this.pandingUser = null;
+    this.pendingUser = null;
   }
   addUser(socket: WebSocket) {
     this.users.push(socket);
@@ -21,17 +21,38 @@ export class GameManager {
   }
   private handleMessage(socket: WebSocket) {
     socket.on("message", (data) => {
-      const message = JSON.parse(data.toString());
-      if (message.type === INIT_GAME) {
-        if(this.pandingUser){
-            //start game
-            const game = new Game(socket,this.pandingUser);
+      try {
+        const messageStr = data.toString();
+        // console.log("Raw message data:", messageStr);
+
+        const message = JSON.parse(messageStr);
+        // console.log("Parsed message:", message);
+
+        if (message.type === INIT_GAME) {
+          if (this.pendingUser) {
+            // start game
+            const game = new Game(socket, this.pendingUser);
             this.games.push(game);
-            this.pandingUser = null;
-        }else{
-            this.pandingUser = socket;
+            this.pendingUser = null;
+          } else {
+            this.pendingUser = socket;
+          }
         }
+      
+
+        if (message.type === MOVE) {
+          const game = this.games.find(
+            (game) => game.player1 === socket || game.player2 === socket
+          );
+          if (game) {
+            game.addMove(socket, message.move);
+          }
+        }
+      }catch (e) {
+        console.log(e)
       }
+
     });
+    
   }
 }

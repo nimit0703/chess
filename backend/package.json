@@ -10,6 +10,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
+    "chess.js": "^1.0.0-beta.8",
     "ws": "^8.17.0"
   },
   "devDependencies": {
