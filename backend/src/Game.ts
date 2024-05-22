@@ -8,6 +8,7 @@ export class Game{
     private board: Chess;
     private moves: string[];
     private starttime: Date;
+    private moveCounter = 0;
     
     constructor(player1:WebSocket, player2:WebSocket){
         this.player1 = player1;
@@ -32,7 +33,16 @@ export class Game{
     addMove(socket: WebSocket, move: {
         from:string, to: string
     }) {
-        
+
+        if (this.moveCounter % 2 == 0 && socket !== this.player1){
+            console.log("not your turn 1");
+            
+            return;
+        } 
+        if (this.moveCounter % 2 == 1 && socket !== this.player2){
+            console.log("not your turn 2");
+            return;
+        }
         try {
             this.board.move(move)
         } catch (error) {
@@ -57,17 +67,19 @@ export class Game{
             return;
         }
 
-        if (this.board.moves().length %2 == 0) {
-            this.player2.emit(JSON.stringify({
+        if (this.moveCounter % 2 == 0) {
+            this.player2.send(JSON.stringify({
                 type: MOVE,
                 payload: move
             }))
         } else {
-            this.player1.emit(JSON.stringify({
+            this.player1.send(JSON.stringify({
                 type: MOVE,
                 payload: move
             }))
         }
+        this.moveCounter++
         console.log("inside addMove",this.board.ascii());
+        console.log("turn",this.board.turn());
     }
 }
