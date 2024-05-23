@@ -30,56 +30,60 @@ export class Game{
         }))
         
     }
-    addMove(socket: WebSocket, move: {
-        from:string, to: string
-    }) {
-
-        if (this.moveCounter % 2 == 0 && socket !== this.player1){
-            console.log("not your turn 1");
-            
-            return;
-        } 
-        if (this.moveCounter % 2 == 1 && socket !== this.player2){
-            console.log("not your turn 2");
-            return;
-        }
-        try {
-            this.board.move(move)
-        } catch (error) {
+    addMove(socket: WebSocket, move: { from: string; to: string }) {
+        // Ensure the correct player is making the move
+        if (this.moveCounter % 2 === 0 && socket !== this.player1) {
+            console.log("Not your turn, Player 1's turn.");
             socket.send(JSON.stringify({
                 type: ERROR,
-                message:"Invalid Move",
-                move: move
-             }))
+                message: "It's not your turn. Please wait for your opponent."
+            }));
+            return;
+        } 
+        if (this.moveCounter % 2 === 1 && socket !== this.player2) {
+            console.log("Not your turn, Player 2's turn.");
+            socket.send(JSON.stringify({
+                type: ERROR,
+                message: "It's not your turn. Please wait for your opponent."
+            }));
             return;
         }
-
-        if(this.board.isGameOver()) {
+    
+        // Try making the move on the board
+        const moveResult = this.board.move(move);
+        if (!moveResult) {  // Check if the move was invalid
+            socket.send(JSON.stringify({
+                type: ERROR,
+                message: "Invalid move",
+                move: move
+            }));
+            return;
+        }
+    
+        // Check for game over condition
+        if (this.board.isGameOver()) {
+            const winner = this.board.turn() === 'w' ? 'black' : 'white';
             this.player1.send(JSON.stringify({
-                type: GAME_OVER ,
-                winner : this.board.turn() === 'w' ? 'black' : 'white'
-            }))
+                type: GAME_OVER,
+                winner: winner
+            }));
             this.player2.send(JSON.stringify({
                 type: GAME_OVER,
-                winner: this.board.turn() === 'w' ? 'black' : 'white'
-                
-            }))
+                winner: winner
+            }));
             return;
         }
-
-        if (this.moveCounter % 2 == 0) {
-            this.player2.send(JSON.stringify({
-                type: MOVE,
-                payload: move
-            }))
-        } else {
-            this.player1.send(JSON.stringify({
-                type: MOVE,
-                payload: move
-            }))
-        }
-        this.moveCounter++
-        console.log("inside addMove",this.board.ascii());
-        console.log("turn",this.board.turn());
+    
+        // Notify the other player of the valid move
+        const opponent = this.moveCounter % 2 === 0 ? this.player2 : this.player1;
+        opponent.send(JSON.stringify({
+            type: MOVE,
+            payload: move
+        }));
+    
+        this.moveCounter++;
+        console.log("Move made:", this.board.ascii());
+        console.log("Current turn:", this.board.turn());
     }
+    
 }

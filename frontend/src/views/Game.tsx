@@ -38,6 +38,11 @@ export const Game = () => {
           break;
         case GAME_OVER:
           console.log("game over");
+          alert("game over")
+          break;
+        case ERROR:
+          console.log("error",message);
+          alert("Invalid move")
           break;
         default:
           console.error("Unknown message type:", message.type);
