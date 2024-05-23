@@ -19,6 +19,7 @@ export const ChessBoard = ({
   setBoard: any;
 }) => {
   const [from, setFrom] = useState<null | Square>(null);
+  const [possibleAttacks, setPossibleAttacks] = useState<Square[]>([]);
   return (
     <>
       {/* using this board build chess board which looks like actual chess */}
@@ -30,12 +31,16 @@ export const ChessBoard = ({
                 const sqRepresntaion = (String.fromCharCode(97 + (j % 8)) +
                   "" +
                   (8 - i)) as Square;
+                  const isPossibleAttack = possibleAttacks.includes(sqRepresntaion);
                 return (
                   <div
                     onClick={() => {
                       console.log(sqRepresntaion);
                       if (!from) {
                         setFrom(sqRepresntaion);
+                        setPossibleAttacks(chess.moves({ square: sqRepresntaion, verbose: true }).map((move: any) => move.to))
+                        console.log(possibleAttacks);
+                        
                       } else {
                         socket.send(
                           JSON.stringify({
@@ -46,19 +51,32 @@ export const ChessBoard = ({
                             },
                           })
                         );
-                        chess.move({
-                          from,
-                          to: sqRepresntaion,
-                        });
+                        try{
+                          
+                          chess.move({
+                            from,
+                            to: sqRepresntaion,
+                          });
+                        }catch(err){
+                          console.log("error");
+                          chess.undo();
+                          setBoard(chess.board());
+                        }
+                        setPossibleAttacks([])
                         setBoard(chess.board());
                         setFrom(null);
                       }
                     }}
                     key={j}
                     className={`w-16 h-16 border border-3 ${
-                      (i + j) % 2 == 0 ? "bg-[#769656]" : "bg-[#f8e7bb]	"
+                      isPossibleAttack
+                        ? "bg-red-500"
+                        : (i + j) % 2 == 0
+                        ? "bg-[#769656]"
+                        : "bg-[#f8e7bb]"
                     }`}
                   >
+                    {isPossibleAttack}
                     <div className="w-full justify-center flex h-full">
                       
                       <div className="h-full justify-center flex flex-col">

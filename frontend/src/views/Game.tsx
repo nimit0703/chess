@@ -43,6 +43,8 @@ export const Game = () => {
         case ERROR:
           console.log("error",message);
           alert("Invalid move")
+          chess.undo();
+          setBoard(chess.board());
           break;
         default:
           console.error("Unknown message type:", message.type);
