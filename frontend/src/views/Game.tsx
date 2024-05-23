@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-case-declarations */
 import { useEffect, useState } from "react";
 import { useWebSocket } from "../hooks/useWebSocket";
@@ -8,12 +9,15 @@ export const INIT_GAME = "init_game";
 export const MOVE = "move";
 export const GAME_OVER = "game_over";
 export const ERROR = "error";
-
+interface Move {
+  from: string;
+  to: string;
+}
 export const Game = () => {
   const socket = useWebSocket();
-  const [chess, setChess] = useState(new Chess());
+  const [chess] = useState(new Chess());
   const [board, setBoard] = useState(chess.board());
-  const [moves, setMoves] = useState([]);
+  const [moves, setMoves] = useState<Move[]>([]);
   const [showMoves, setShowMoves] = useState(false);
   const [color, sendColor] = useState<string>("");
   useEffect(() => {
