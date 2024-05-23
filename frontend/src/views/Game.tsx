@@ -15,7 +15,7 @@ export const Game = () => {
   const [board, setBoard] = useState(chess.board());
   const [moves, setMoves] = useState([]);
   const [showMoves, setShowMoves] = useState(false);
-
+  const [color, sendColor] = useState<string>("");
   useEffect(() => {
     if (!socket) {
       return;
@@ -24,7 +24,8 @@ export const Game = () => {
       const message = JSON.parse(event.data);
       switch (message.type) {
         case INIT_GAME:
-          console.log("game init");
+          console.log("game init", message);
+          sendColor(message.payload.color);
           setBoard(chess.board());
           setMoves([]);
           break;
@@ -60,46 +61,75 @@ export const Game = () => {
 
   return (
     <>
-      <h1 className="text-center text-black">Chess dom com</h1>
-      <div className="grid grid-cols-12 gap-4 justify-items-center">
-        <div className="col-span-9 flex flex-col justify-center items-center p-3">
-          <p>chess board</p>
-          <ChessBoard chess={chess} setBoard={setBoard} board={board} socket={socket} />
-        </div>
-        <div className="col-span-3 items-center">
-          <button
-            onClick={handleInitGame}
-            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded"
-          >
-            Start New Game
-          </button>
-          <button
-            onClick={toggleMoves}
-            className="bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 border-b-4 border-green-700 hover:border-green-500 rounded mt-2"
-          >
-            {showMoves ? "Hide Moves" : "Show Moves"}
-          </button>
-          {showMoves && (
-            <table className="mt-4 border-collapse border border-gray-400">
-              <thead>
-                <tr>
-                  <th className="border border-gray-300 px-4 py-2">Move From</th>
-                  <th className="border border-gray-300 px-4 py-2">Move To</th>
-                </tr>
-              </thead>
-              <tbody>
-                {moves.map((move : {
-                  from:string,
-                  to: string
-                }, index) => (
-                  <tr key={index}>
-                    <td className="border border-gray-300 px-4 py-2">{move.from}</td>
-                    <td className="border border-gray-300 px-4 py-2">{move.to}</td>
+      <div className="bg-gray-600 w-full h-screen">
+        <div className="grid grid-cols-12 gap-4 justify-items-center">
+          <div className="col-span-9 flex flex-col justify-center items-center p-3">
+            <p className="text-white">board</p>
+            <ChessBoard
+              chess={chess}
+              setBoard={setBoard}
+              board={board}
+              socket={socket}
+            />
+            <div className="mt-4">
+              <p className="text-gray-200 flex justify-center items-center">
+                <span className="mr-2 text-lg font-bold tracking-widest">You're: {color}</span>
+                <img
+                  className="w-6"
+                  src={`/${color === "black" ? "k.png" : "K copy.png"}`}
+                  alt="color representation"
+                />
+              </p>
+            </div>
+          </div>
+          <div className="col-span-3 items-center">
+            <button
+              onClick={handleInitGame}
+              className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded"
+            >
+              Start New Game
+            </button>
+            <button
+              onClick={toggleMoves}
+              className="bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 border-b-4 border-green-700 hover:border-green-500 rounded mt-2"
+            >
+              {showMoves ? "Hide Moves" : "Show Moves"}
+            </button>
+            {showMoves && (
+              <table className="mt-4 border-collapse border border-gray-400">
+                <thead>
+                  <tr>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Move From
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Move To
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {moves.map(
+                    (
+                      move: {
+                        from: string;
+                        to: string;
+                      },
+                      index
+                    ) => (
+                      <tr key={index}>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {move.from}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {move.to}
+                        </td>
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
       </div>
     </>

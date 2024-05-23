@@ -7,7 +7,7 @@ export const ChessBoard = ({
   board,
   socket,
   chess,
-  setBoard
+  setBoard,
 }: {
   board: ({
     square: Square;
@@ -15,11 +15,10 @@ export const ChessBoard = ({
     color: Color;
   } | null)[][];
   socket: WebSocket;
-  chess:any;
-  setBoard: any
+  chess: any;
+  setBoard: any;
 }) => {
-
-    const [from,setFrom] = useState<null | Square>(null);
+  const [from, setFrom] = useState<null | Square>(null);
   return (
     <>
       {/* using this board build chess board which looks like actual chess */}
@@ -28,37 +27,51 @@ export const ChessBoard = ({
           return (
             <div key={i} className="flex ">
               {row.map((square, j) => {
-                const sqRepresntaion  = String.fromCharCode(97 + (j%8)) + "" + (8-i) as Square;
+                const sqRepresntaion = (String.fromCharCode(97 + (j % 8)) +
+                  "" +
+                  (8 - i)) as Square;
                 return (
                   <div
-                  onClick={()=>{
-                    console.log(sqRepresntaion);
-                    if(!from){
-                      setFrom(sqRepresntaion)
-                        }else{
-                            socket.send(JSON.stringify({
-                                type: MOVE,
-                                move:{
-                                    from,
-                                    to:sqRepresntaion
-                                }
-                            }))
-                            chess.move({
+                    onClick={() => {
+                      console.log(sqRepresntaion);
+                      if (!from) {
+                        setFrom(sqRepresntaion);
+                      } else {
+                        socket.send(
+                          JSON.stringify({
+                            type: MOVE,
+                            move: {
                               from,
-                              to:sqRepresntaion
+                              to: sqRepresntaion,
+                            },
                           })
-                          setBoard(chess.board())
-                            setFrom(null)
-                        }
+                        );
+                        chess.move({
+                          from,
+                          to: sqRepresntaion,
+                        });
+                        setBoard(chess.board());
+                        setFrom(null);
+                      }
                     }}
                     key={j}
-                    className={`w-16 h-16 ${
-                      (i + j) % 2 == 0 ? "bg-gray-800" : "bg-gray-500"
+                    className={`w-16 h-16 border border-3 ${
+                      (i + j) % 2 == 0 ? "bg-[#769656]" : "bg-[#f8e7bb]	"
                     }`}
                   >
                     <div className="w-full justify-center flex h-full">
+                      
                       <div className="h-full justify-center flex flex-col">
-                        {square?.type}
+                        {square ? (
+                          <img
+                            className="w-6"
+                            src={`/${
+                              square.color === "b"
+                                ? square.type
+                                : `${square.type?.toUpperCase()} copy`
+                            }.png`}
+                          />
+                        ) : null}
                       </div>
                     </div>
                   </div>
