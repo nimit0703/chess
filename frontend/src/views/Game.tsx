@@ -42,7 +42,7 @@ export const Game = () => {
           break;
         case GAME_OVER:
           console.log("game over");
-          alert("game over")
+          alert("game over "+ message.winner +"is winer")
           break;
         case ERROR:
           console.log("error",message);
