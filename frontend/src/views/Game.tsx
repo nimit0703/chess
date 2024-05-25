@@ -2,7 +2,7 @@
 /* eslint-disable no-case-declarations */
 import { useEffect, useState } from "react";
 import { useWebSocket } from "../hooks/useWebSocket";
-import { Chess } from "chess.js";
+import { Chess, Square } from "chess.js";
 import { ChessBoard } from "../components/ChessBoard";
 
 export const INIT_GAME = "init_game";
@@ -19,7 +19,9 @@ export const Game = () => {
   const [board, setBoard] = useState(chess.board());
   const [moves, setMoves] = useState<Move[]>([]);
   const [showMoves, setShowMoves] = useState(false);
-  const [color, sendColor] = useState<string>("");
+  const [color, setColor] = useState<string>("");
+  const [lastMove, setLastMove] = useState<{ from: Square; to: Square } | null>(null);
+
   useEffect(() => {
     if (!socket) {
       return;
@@ -29,7 +31,7 @@ export const Game = () => {
       switch (message.type) {
         case INIT_GAME:
           console.log("game init", message);
-          sendColor(message.payload.color);
+          setColor(message.payload.color);
           setBoard(chess.board());
           setMoves([]);
           break;
@@ -38,6 +40,7 @@ export const Game = () => {
           chess.move(move);
           setBoard(chess.board());
           setMoves((prevMoves) => [...prevMoves, move]);
+          setLastMove(move)
           console.log("move");
           break;
         case GAME_OVER:
@@ -69,25 +72,27 @@ export const Game = () => {
   const toggleMoves = () => {
     setShowMoves((prevShowMoves) => !prevShowMoves);
   };
-
+  const lastMoves = moves.slice(-15).reverse();
   return (
     <>
       <div className="bg-gray-600 w-full h-screen">
         <div className="grid grid-cols-12 gap-4 justify-items-center">
           <div className="col-span-9 flex flex-col justify-center items-center p-3">
-            <p className="text-white">board</p>
             <ChessBoard
               chess={chess}
               setBoard={setBoard}
               board={board}
               socket={socket}
+              color={color}
+              lastMove={lastMove as Move}
+              setLastMove={setLastMove}
             />
             <div className="mt-4">
               <p className="text-gray-200 flex justify-center items-center">
-                <span className="mr-2 text-lg font-bold tracking-widest">You're: {color}</span>
+                <span className="mr-2 text-lg font-bold tracking-widest">Current Turn : </span>
                 <img
                   className="w-6"
-                  src={`/${color === "black" ? "k.png" : "K copy.png"}`}
+                  src={`/${chess.turn() === "b" ? "k.png" : "K copy.png"}`}
                   alt="color representation"
                 />
               </p>
@@ -110,16 +115,16 @@ export const Game = () => {
               <table className="mt-4 border-collapse border border-gray-400">
                 <thead>
                   <tr>
-                    <th className="border border-gray-300 px-4 py-2">
+                    <th className="border text-white border-gray-300 px-4 py-2">
                       Move From
                     </th>
-                    <th className="border border-gray-300 px-4 py-2">
+                    <th className="border text-white border-gray-300 px-4 py-2">
                       Move To
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {moves.map(
+                  {lastMoves.map(
                     (
                       move: {
                         from: string;
@@ -128,10 +133,10 @@ export const Game = () => {
                       index
                     ) => (
                       <tr key={index}>
-                        <td className="border border-gray-300 px-4 py-2">
+                        <td className="border text-white border-gray-300 px-4 py-2">
                           {move.from}
                         </td>
-                        <td className="border border-gray-300 px-4 py-2">
+                        <td className="border text-white border-gray-300 px-4 py-2">
                           {move.to}
                         </td>
                       </tr>
