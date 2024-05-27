@@ -1,8 +1,10 @@
 import { WebSocketServer } from 'ws';
 import { GameManager } from './GameManager';
 
-const wss = new WebSocketServer({ port: 8080 });
-console.log("backend started");
+const PORT = parseInt(process.env.PORT ?? '8080', 10);  // Use nullish coalescing to ensure a string
+
+const wss = new WebSocketServer({ port: PORT });
+console.log("backend started",PORT);
 
 const gameManager = new GameManager();
 
