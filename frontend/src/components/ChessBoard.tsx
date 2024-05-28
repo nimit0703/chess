@@ -178,7 +178,6 @@ export const ChessBoard = ({
             </div>
           ))}
         </div>
-        {/* Board rows with row labels */}
         {boardContent.map((row, i) => (
           <div key={i} className="flex items-center">
             <div className="w-6 h-16 flex justify-center items-center text-center">

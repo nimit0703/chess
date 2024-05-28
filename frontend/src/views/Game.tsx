@@ -75,7 +75,7 @@ export const Game = () => {
   const lastMoves = moves.slice(-15).reverse();
   return (
     <>
-      <div className="bg-gray-600 w-full h-screen">
+      <div className="bg-background w-full h-screen">
         <div className="grid grid-cols-12 gap-4 justify-items-center">
           <div className="col-span-9 flex flex-col justify-center items-center p-3">
             <ChessBoard
